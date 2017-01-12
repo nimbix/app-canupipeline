@@ -1,0 +1,16 @@
+FROM jarvice/base-centos-torque:6
+MAINTAINER Nimbix, Inc.
+
+RUN yum install -y wget
+
+VOLUME /tmp
+WORKDIR /tmp
+RUN yum install -y java-1.8.0-openjdk-headless.x86_64
+RUN wget "https://github.com/marbl/canu/releases/download/v1.4/canu-1.4.Linux-amd64.tar.xz" && tar xvf canu-1.4.Linux-amd64.tar.xz && mv /tmp/canu-1.4 /usr/local/canu-1.4
+
+ADD ./scripts /usr/local/scripts/canu
+ADD ./NAE/AppDef.json /etc/NAE/AppDef.json
+ADD ./NAE/AppDef.png /etc/NAE/AppDef.png
+ADD ./NAE/help.html /etc/NAE/help.html
+
+CMD ["/usr/local/scripts/canu/canu-pipeline.sh"]
