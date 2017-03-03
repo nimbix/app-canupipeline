@@ -12,5 +12,6 @@ ADD ./scripts /usr/local/scripts/canu
 ADD ./NAE/AppDef.json /etc/NAE/AppDef.json
 ADD ./NAE/AppDef.png /etc/NAE/AppDef.png
 ADD ./NAE/help.html /etc/NAE/help.html
+COPY ./NAE/screenshot.png /etc/NAE/screenshot.png
 
 CMD ["/usr/local/scripts/canu/canu-pipeline.sh"]
