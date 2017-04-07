@@ -34,12 +34,12 @@
 # canu-pipeline.sh
 #
 # Setup:
-#  1. Install CANU from binary archives: https://github.com/marbl/canu/releases, along with JAVA 1.8.
+#  1. Install CANU from binary archives
+#     (https://github.com/marbl/canu/releases, along with JAVA 1.8);
 #     * https://github.com/marbl/canu/releases/download/v1.2/canu-1.2.Linux-amd64.tar.bz2
 #     * http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jre-8u91-linux-x64.rpm
-#  2. Install Torque 6.0.1 RPMs. These can be built from the source archive.
-#  3. Run jarvice.apps/torque/install.sh
-#  4. Call setup_torque.sh to start the torque server and clients
+#  2. Call /usr/local/scripts/torque/launch.sh to start the torque server
+#     and clients
 #
 # This script should be called if you want to submit a job to torque via
 # qsub or qrun in the current job environment.
@@ -109,10 +109,8 @@ done
 
 sleep 5
 
-#. `dirname $0`/../torque/install.sh
-
 echo "Starting torque"
-/usr/local/scripts/torque/start.sh
+sudo /usr/local/scripts/torque/launch.sh
 
 sleep 15
 

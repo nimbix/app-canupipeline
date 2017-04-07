@@ -1,4 +1,4 @@
-FROM jarvice/base-centos-torque:6
+FROM jarvice/base-centos-torque:latest
 MAINTAINER Nimbix, Inc.
 
 RUN yum install -y wget java-1.8.0-openjdk-headless.x86_64 && yum clean all
