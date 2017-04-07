@@ -18,24 +18,16 @@
   "commands": {
     "Batch": {
       "path": "/usr/local/scripts/canu/canu-pipeline.sh",
-      "interactive": true,
+      "interactive": false,
       "name": "Canu Pipeline",
       "description": "Run a batch pipeline directly from your browser.",
       "parameters": {
-        "-version": {
-          "name": "Canu Version",
-          "type": "selection",
-          "values": [
-            "1.4"
-          ],
-          "required": true
-        },
         "-ApplicationParams": {
           "name": "Key-value application parameters",
+          "description": "Key-value parameter pairs.",
           "type": "STR",
           "value": "",
-          "required": false,
-          "description": "Key-value parameter pairs."
+          "required": false
         },
         "-action": {
           "name": "Canu Action",
