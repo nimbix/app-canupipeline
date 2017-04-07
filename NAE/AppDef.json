@@ -12,7 +12,7 @@
   ],
   "commands": {
     "canu-pipeline": {
-      "path": "/usr/lib/jarvice.apps/canu/canu-pipeline.sh",
+      "path": "/usr/local/scripts/canu/canu-pipeline.sh",
       "interactive": true,
       "name": "Canu Pipeline",
       "description": "Run a batch pipeline directly from your browser.",
