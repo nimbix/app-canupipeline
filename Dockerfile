@@ -10,7 +10,7 @@ WORKDIR /tmp
 
 # Nimbix desktop (does a yum clean all)
 RUN unzip nimbix.zip && rm -f nimbix.zip && mkdir -p /usr/local/lib/nimbix_desktop && for i in help-real.html help-tiger.html install-centos-real.sh install-centos-tiger.sh nimbix_desktop postinstall-tiger.sh url.txt xfce4-session-logout share skel.config; do cp -a /tmp/image-common-master/nimbix_desktop/$i /usr/local/lib/nimbix_desktop; done && rm -rf /tmp/image-common-master
-RUN /usr/local/lib/nimbix_desktop/install-centos-tiger.sh && yum clean all && ln -s /usr/local/lib/nimbix_desktop /usr/lib/JARVICE/tools/nimbix_desktop && echo "/usr/local/bin/nimbix_desktop" >>/etc/rc.local
+RUN /usr/local/lib/nimbix_desktop/install-centos-tiger.sh && yum clean all && ln -s /usr/local/lib/nimbix_desktop /usr/lib/JARVICE/tools/nimbix_desktop
 
 # recreate nimbix user home to get the right skeleton files
 RUN /bin/rm -rf /home/nimbix && /sbin/mkhomedir_helper nimbix
@@ -25,7 +25,8 @@ RUN yum install -y wget gnuplot java-1.8.0-openjdk-headless.x86_64 && \
     yum clean all && \
     wget "https://github.com/marbl/canu/releases/download/v${CANU_VERSION}/canu-${CANU_VERSION}.Linux-amd64.tar.xz" && \
     tar xvf canu-${CANU_VERSION}.Linux-amd64.tar.xz -C /usr/local && \
-    rm -f canu-${CANU_VERSION}.Linux-amd64.tar.xz
+    rm -f canu-${CANU_VERSION}.Linux-amd64.tar.xz && \
+    echo "export PATH=\$PATH:/usr/local/canu-${CANU_VERSION}/Linux-amd64/bin" >>/etc/profile.d/canu.sh
 
 ADD ./scripts/canu-pipeline.sh /usr/local/scripts/canu/canu-pipeline.sh
 ADD ./NAE/AppDef.json /etc/NAE/AppDef.json

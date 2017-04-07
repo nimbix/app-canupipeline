@@ -16,7 +16,7 @@
     "BLOCK_ARRAY"
   ],
   "commands": {
-    "canu-pipeline": {
+    "Batch": {
       "path": "/usr/local/scripts/canu/canu-pipeline.sh",
       "interactive": true,
       "name": "Canu Pipeline",
@@ -126,18 +126,24 @@
         }
       }
     },
-    "canu-desktop": {
+    "Server": {
       "path": "/sbin/init",
       "interactive": true,
+      "name": "Canu Server",
+      "description": "Launch a session with all boot services, including TORQUE and SSH.  Connection address and credentials will appear in your web browser once available.",
+      "parameters": {}
+    },
+    "GUI": {
+      "path": "/usr/local/bin/nimbix_desktop",
+      "interactive": true,
       "name": "Canu Desktop",
-      "description": " Launch an interactive desktop with Canu Pipeline tools.",
+      "description": "Launch an interactive desktop with Canu Pipeline tools.",
       "parameters": {
-        "-version": {
-          "name": "Canu Version",
-          "type": "selection",
-          "values": [
-            "1.4"
-          ],
+        "command": {
+          "name": "Command",
+          "description": "Command to run",
+          "type": "STR",
+          "positional": true,
           "required": true
         }
       }

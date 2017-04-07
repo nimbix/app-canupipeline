@@ -53,10 +53,6 @@ GENOME_MAGNITUDE=
 
 while [ ! -z "$1" ]; do
     case "$1" in
-        -version)
-            shift
-            VERSION="$1"
-            ;;
         -ApplicationParams)
             shift
             PARAMS="$1"
@@ -109,7 +105,7 @@ done
 
 sleep 5
 
-echo "Starting torque"
+echo "Starting torque..."
 #sudo /usr/local/scripts/torque/launch.sh
 /usr/local/scripts/torque/launch_all.sh
 
@@ -133,9 +129,8 @@ while [ 1 ]; do
     fi
 done
 
-
-CANU_PATH=/usr/local/canu-$VERSION/Linux-amd64/bin
-export PATH=${PATH}:${CANU_PATH}
+#CANU_PATH=$(ls -d /usr/local/canu-*)/Linux-amd64/bin
+#export PATH=${PATH}:${CANU_PATH}
 
 . /etc/JARVICE/jobinfo.sh
 
