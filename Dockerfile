@@ -14,7 +14,7 @@ RUN yum install -y wget java-1.8.0-openjdk-headless.x86_64 && \
     mv /tmp/canu-${CANU_VERSION} /usr/local/canu-${CANU_VERSION}
 
 ADD ./scripts/canu-pipeline.sh /usr/local/scripts/canu/canu-pipeline.sh
-ADD ./NAE/AppDef.json /etc/NAE/AppDef.json
+#ADD ./NAE/AppDef.json /etc/NAE/AppDef.json
 ADD ./NAE/AppDef.png /etc/NAE/AppDef.png
 ADD ./NAE/help.html /etc/NAE/help.html
 COPY ./NAE/screenshot.png /etc/NAE/screenshot.png
