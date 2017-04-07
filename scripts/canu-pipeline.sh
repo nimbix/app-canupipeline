@@ -38,7 +38,7 @@
 #     (https://github.com/marbl/canu/releases, along with JAVA 1.8);
 #     * https://github.com/marbl/canu/releases/download/v1.2/canu-1.2.Linux-amd64.tar.bz2
 #     * http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jre-8u91-linux-x64.rpm
-#  2. Call /usr/local/scripts/torque/launch.sh to start the torque server
+#  2. Call /usr/local/scripts/torque/launch_all.sh to start the torque server
 #     and clients
 #
 # This script should be called if you want to submit a job to torque via
@@ -110,7 +110,8 @@ done
 sleep 5
 
 echo "Starting torque"
-sudo /usr/local/scripts/torque/launch.sh
+#sudo /usr/local/scripts/torque/launch.sh
+/usr/local/scripts/torque/launch_all.sh
 
 sleep 15
 
@@ -225,12 +226,13 @@ else
     ERROR_CODE=1
 fi
 
-NNODES=$(cat /etc/JARVICE/nodes | wc -l)
-let NSLAVES=$NNODES-1
-
-for i in `cat /etc/JARIVCE/nodes |tail -n $NSLAVES`; do
-    echo "Shutting down $i"
-    ssh $i sudo halt
-done
+# Workaround for a bug with the block vaults (commented out since fixed)
+#NNODES=$(cat /etc/JARVICE/nodes | wc -l)
+#let NSLAVES=$NNODES-1
+#
+#for i in `cat /etc/JARVICE/nodes |tail -n $NSLAVES`; do
+#    echo "Shutting down $i"
+#    ssh $i sudo halt
+#done
 
 exit $ERROR_CODE
