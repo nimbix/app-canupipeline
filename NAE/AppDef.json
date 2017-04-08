@@ -133,10 +133,10 @@
       "parameters": {
         "command": {
           "name": "Command",
-          "description": "Command to run",
+          "description": "Optional command to run on startup",
           "type": "STR",
           "positional": true,
-          "required": true
+          "required": false
         }
       }
     }
