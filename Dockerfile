@@ -29,6 +29,7 @@ RUN yum install -y wget gnuplot java-1.8.0-openjdk-headless.x86_64 && \
     echo "export PATH=\$PATH:/usr/local/canu-${CANU_VERSION}/Linux-amd64/bin" >>/etc/profile.d/canu.sh
 
 ADD ./scripts/canu-pipeline.sh /usr/local/scripts/canu/canu-pipeline.sh
+ADD ./scripts/canu-desktop.sh /usr/local/scripts/canu/canu-desktop.sh
 ADD ./NAE/AppDef.json /etc/NAE/AppDef.json
 ADD ./NAE/AppDef.png /etc/NAE/AppDef.png
 ADD ./NAE/help.html /etc/NAE/help.html
