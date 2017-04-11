@@ -49,9 +49,9 @@
         "-genomeSize": {
           "name": "Genome size",
           "type": "FLOAT",
-          "min": 0,
-          "max": 100000000,
-          "value": 1,
+          "min": 0.0,
+          "max": 100000000.0,
+          "value": 1.0,
           "required": true
         },
         "-genomeMagnitude": {
