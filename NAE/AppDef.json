@@ -49,7 +49,7 @@
         "-genomeSize": {
           "name": "Genome size",
           "type": "FLOAT",
-          "presision": 1,
+          "presision": 0.1,
           "min": 0.0,
           "max": 100000000.0,
           "value": 1.0,
