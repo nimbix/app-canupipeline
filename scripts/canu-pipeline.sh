@@ -129,8 +129,8 @@ while [ 1 ]; do
     fi
 done
 
-#CANU_PATH=$(ls -d /usr/local/canu-*)/Linux-amd64/bin
-#export PATH=${PATH}:${CANU_PATH}
+CANU_PATH=$(ls -d /usr/local/canu-*)/Linux-amd64/bin
+export PATH=${PATH}:${CANU_PATH}
 
 . /etc/JARVICE/jobinfo.sh
 
