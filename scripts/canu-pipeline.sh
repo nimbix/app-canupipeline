@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2016, Nimbix, Inc.
+# Copyright (c) 2017, Nimbix, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
