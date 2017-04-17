@@ -1,5 +1,5 @@
 {
-  "name": "Canu Pipeline 1.4+",
+  "name": "Canu Pipeline 1.5",
   "description": "Canu assembles reads from PacBio RS II or Oxford Nanopore MinION instruments into uniquely-assemblable contigs, unitigs.",
   "author": "Canu",
   "licensed": true,
