@@ -30,7 +30,7 @@ FROM jarvice/base-centos-torque:latest
 MAINTAINER Nimbix, Inc.
 
 ARG CANU_VERSION
-ENV CANU_VERSION ${CANU_VERSION:-1.4}
+ENV CANU_VERSION ${CANU_VERSION:-1.5}
 
 # Install Nimbix desktop so we can use GUI mode
 ADD https://github.com/nimbix/image-common/archive/master.zip /tmp/nimbix.zip
