@@ -48,13 +48,14 @@ EXPOSE 5901
 EXPOSE 443
 
 # Add scripts and whatnot
+ADD ./scripts/canu-desktop.sh /usr/local/scripts/canu/canu-desktop.sh
+ADD ./scripts/canu-install.sh /usr/local/scripts/canu/canu-install.sh
+ADD ./scripts/canu-pipeline.sh /usr/local/scripts/canu/canu-pipeline.sh
 COPY ./NAE/screenshot.png /etc/NAE/screenshot.png
 ADD ./NAE/AppDef.png /etc/NAE/AppDef.png
 ADD ./NAE/help.html /etc/NAE/help.html
 ADD ./NAE/AppDef.json /etc/NAE/AppDef.json
-ADD ./scripts/canu-pipeline.sh /usr/local/scripts/canu/canu-pipeline.sh
-ADD ./scripts/canu-desktop.sh /usr/local/scripts/canu/canu-desktop.sh
-ADD ./scripts/canu-install.sh /usr/local/scripts/canu/canu-install.sh
+RUN sed -e "s/%CANU_VERSION%/${CANU_VERSION}/" /etc/NAE/AppDef.json
 
 # Do Canu install
 WORKDIR /tmp
