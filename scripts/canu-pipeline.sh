@@ -77,9 +77,13 @@ while [ ! -z "$1" ]; do
                 GENOME_MAGNITUDE=""
             fi
             ;;
-        -errorRate)
+        -rawErrorRate)
             shift
-            ERROR_RATE="$1"
+            RAW_ERROR_RATE="rawErrorRate=$1"
+            ;;
+        -correctedErrorRate)
+            shift
+            CORRECTED_ERROR_RATE="correctedErrorRate=$1"
             ;;
         -inputType)
             shift
@@ -176,12 +180,16 @@ set -e
 # Canu is PBS aware and submits the job to PBS automagically using the name canu_${JOB_NAME}
 if [ ! -z $RESUME_FROM_JOB ]; then
     # If resuming from a previous job...just call the command with no input file
-    canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} errorRate=${ERROR_RATE} \
-         genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE} gridOptionsJobName=canu ${PARAMS}
+    canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} \
+        ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE} \
+        genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE} \
+        gridOptionsJobName=canu ${PARAMS}
 else
     # Otherwise...call the full command
-    canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} errorRate=${ERROR_RATE} \
-         genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE} gridOptionsJobName=canu ${PARAMS} ${INPUT_TYPE} ${INPUT_FILE}
+    canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} \
+        ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE} \
+        genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE} \
+        gridOptionsJobName=canu ${PARAMS} ${INPUT_TYPE} ${INPUT_FILE}
 fi
 set +e
 

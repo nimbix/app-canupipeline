@@ -75,12 +75,16 @@
           "value": "",
           "required": false
         },
-        "-errorRate": {
-          "name": "Error Rate (as a decimal fraction)",
-          "type": "FLOAT",
-          "min": 0,
-          "max": 1,
-          "value": 0.025,
+        "-rawErrorRate": {
+          "name": "Raw Error Rate (as a decimal fraction: 0.0 to 1.0)",
+          "type": "STR",
+          "value": "",
+          "required": false
+        },
+        "-correctedErrorRate": {
+          "name": "Corrected Error Rate (as a decimal fraction: 0.0 to 1.0)",
+          "type": "STR",
+          "value": "",
           "required": false
         },
         "-inputType": {
