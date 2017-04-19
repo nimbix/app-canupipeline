@@ -55,7 +55,7 @@ COPY ./NAE/screenshot.png /etc/NAE/screenshot.png
 ADD ./NAE/AppDef.png /etc/NAE/AppDef.png
 ADD ./NAE/help.html /etc/NAE/help.html
 ADD ./NAE/AppDef.json /etc/NAE/AppDef.json
-RUN sed -e "s/%CANU_VERSION%/${CANU_VERSION}/" /etc/NAE/AppDef.json
+RUN sed -i -e "s/%CANU_VERSION%/${CANU_VERSION}/" /etc/NAE/AppDef.json
 
 # Do Canu install
 WORKDIR /tmp
