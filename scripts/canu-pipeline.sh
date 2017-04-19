@@ -179,12 +179,14 @@ echo `qstat -a`
 set -e
 # Canu is PBS aware and submits the job to PBS automagically using the name canu_${JOB_NAME}
 if [ ! -z $RESUME_FROM_JOB ]; then
+    echo "Resuming Canu job: $RESUME_FROM_JOB"
     # If resuming from a previous job...just call the command with no input file
     canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} \
         ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE} \
         genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE} \
         gridOptionsJobName=canu ${PARAMS}
 else
+    echo "Starting new Canu job: $JOB_NAME"
     # Otherwise...call the full command
     canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} \
         ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE} \
@@ -229,13 +231,13 @@ else
     ERROR_CODE=1
 fi
 
-# Workaround for a bug with the block vaults (commented out since fixed)
-#NNODES=$(cat /etc/JARVICE/nodes | wc -l)
-#let NSLAVES=$NNODES-1
-#
-#for i in `cat /etc/JARVICE/nodes |tail -n $NSLAVES`; do
-#    echo "Shutting down $i"
-#    ssh $i sudo halt
-#done
+# Workaround for a bug with the block vaults
+NNODES=$(cat /etc/JARVICE/nodes | wc -l)
+let NSLAVES=$NNODES-1
+
+for i in `cat /etc/JARVICE/nodes |tail -n $NSLAVES`; do
+    echo "Shutting down $i"
+    ssh $i sudo halt
+done
 
 exit $ERROR_CODE
