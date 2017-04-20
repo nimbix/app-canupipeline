@@ -109,7 +109,7 @@ done
 
 sleep 5
 
-echo "Starting torque..."
+echo "* Starting torque..."
 #sudo /usr/local/scripts/torque/launch.sh
 /usr/local/scripts/torque/launch_all.sh
 
@@ -124,7 +124,7 @@ while [ 1 ]; do
         sleep 10
         ELAPSED=$(($ELAPSED+10))
         if [ $ELAPSED -gt $TIMEOUT ]; then
-            echo "Failure to start torque!" 1>&2
+            echo "* Failure to start torque!" 1>&2
             echo `qnodes -a` 1>&2
             exit 1
         fi
@@ -139,7 +139,7 @@ export PATH=${PATH}:${CANU_PATH}
 . /etc/JARVICE/jobinfo.sh
 
 if [ ! -z $RESUME_FROM_JOB ] && [ ! -d /data/$RESUME_FROM_JOB ]; then
-    echo "FATAL: Cannot resume job: $RESUME_FROM_JOB. Try with a different job name, or leave this blank to start over." 1>&1
+    echo "** FATAL: Cannot resume job: $RESUME_FROM_JOB. Try with a different job name, or leave this blank to start over." 1>&1
 fi
 
 
@@ -156,7 +156,7 @@ else
 fi
 cd $OUTPUT_DIR
 
-echo "Output will be saved to /data/${JOB_NAME}"
+echo "** Output will be saved to /data/${JOB_NAME}"
 
 # canu \
 #     -d <working-directory> \
@@ -170,23 +170,23 @@ echo "Output will be saved to /data/${JOB_NAME}"
 #     [-pacbio-corrected   <read-file>]
 #     [-nanopore-raw       <read-file>]
 #     [-nanopore-corrected <read-file>]
-echo '###########################################################################'
+printf "%0.s#" {1..75}; echo
 echo `qnodes -a`
-echo '###########################################################################'
+printf "%0.s#" {1..75}; echo
 echo `qstat -a`
 
 
 set -e
 # Canu is PBS aware and submits the job to PBS automagically using the name canu_${JOB_NAME}
 if [ ! -z $RESUME_FROM_JOB ]; then
-    echo "Resuming Canu job: $RESUME_FROM_JOB"
+    echo "** Resuming Canu job: $RESUME_FROM_JOB"
     # If resuming from a previous job...just call the command with no input file
     canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} \
         ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE} \
         genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE} \
         gridOptionsJobName=canu ${PARAMS}
 else
-    echo "Starting new Canu job: $JOB_NAME"
+    echo "** Starting new Canu job: $JOB_NAME"
     # Otherwise...call the full command
     canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} \
         ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE} \
@@ -207,7 +207,7 @@ if [ ! -z $torque_job_id ]; then
         QUEUE_LENGTH=$(qstat -f | grep "job_state" |grep -v "job_state = C" |wc -l)
         LATEST_OUTPUT=$(ls $OUTPUT_DIR/canu-scripts |grep out$ | sort |tail -n 1)
         if [ "$LATEST_OUTPUT" != "$LAST_LATEST_OUTPUT" ]; then
-            echo "Current log file is: $LATEST_OUTPUT"
+            echo; echo "*** Current log file is: $LATEST_OUTPUT"
             # cat the contents of the last output. if there's a new output file, then the
             # contents is complete.
             if [ ! -z $OUTPUT_DIR/canu-scripts/${LAST_LATEST_OUTPUT} ] && \
@@ -215,8 +215,11 @@ if [ ! -z $torque_job_id ]; then
                 cat $OUTPUT_DIR/canu-scripts/${LAST_LATEST_OUTPUT}
             fi
             LAST_LATEST_OUTPUT=$LATEST_OUTPUT
+            echo; echo -n "*** Processing"
         fi
+        echo -n "."
     done
+    echo; echo
     LAST_OUTPUT=$(ls $OUTPUT_DIR/canu-scripts | grep out$ | sort | tail -n 1)
     cat $OUTPUT_DIR/canu-scripts/${LAST_OUTPUT}
     FAILED=$(cat $OUTPUT_DIR/canu-scripts/${LAST_OUTPUT} |grep -i "canu failed")
@@ -227,17 +230,19 @@ if [ ! -z $torque_job_id ]; then
         ERROR_CODE=0
     fi
 else
-    echo "FATAL: Error launching canu job!" 1>&2
+    echo "** FATAL: Error launching canu job!" 1>&2
     ERROR_CODE=1
 fi
 
-# Workaround for a bug with the block vaults
-NNODES=$(cat /etc/JARVICE/nodes | wc -l)
-let NSLAVES=$NNODES-1
+echo; printf "%0.s*" {1..75}; echo
 
-for i in `cat /etc/JARVICE/nodes |tail -n $NSLAVES`; do
-    echo "Shutting down $i"
-    ssh $i sudo halt
-done
+# Workaround for a bug with the block vaults
+#NNODES=$(cat /etc/JARVICE/nodes | wc -l)
+#let NSLAVES=$NNODES-1
+#
+#for i in `cat /etc/JARVICE/nodes |tail -n $NSLAVES`; do
+#    echo "* Shutting down $i"
+#    ssh $i sudo halt
+#done
 
 exit $ERROR_CODE
