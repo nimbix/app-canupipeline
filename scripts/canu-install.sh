@@ -12,8 +12,9 @@ wget --header "Cookie: oraclelicense=accept-securebackup-cookie" $JRE_URL
 yum install -y $(basename $JRE_URL)
 rm -f $(basename $JRE_URL)
 
-wget "https://github.com/marbl/canu/releases/download/v${CANU_VERSION}/canu-${CANU_VERSION}.Linux-amd64.tar.xz" || \
-    wget "https://github.com/marbl/canu/archive/v${CANU_VERSION}.tar.gz"
+#wget "https://github.com/marbl/canu/releases/download/v${CANU_VERSION}/canu-${CANU_VERSION}.Linux-amd64.tar.xz" || \
+
+wget "https://github.com/marbl/canu/archive/v${CANU_VERSION}.tar.gz"
 
 if [ -f "canu-${CANU_VERSION}.Linux-amd64.tar.xz" ]; then
     tar xvf canu-${CANU_VERSION}.Linux-amd64.tar.xz -C /usr/local
