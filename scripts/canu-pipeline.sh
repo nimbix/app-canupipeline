@@ -230,6 +230,10 @@ if [ ! -z $torque_job_id ]; then
     if [ ! -z "$FAILED" ]; then
         echo "$FAILED" 1>&2
         ERROR_CODE=1
+        echo "** qnodes -a output:"
+        qnodes -a
+        echo "** qstat -f output:"
+        qstat -f
     else
         ERROR_CODE=0
     fi
