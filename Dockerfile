@@ -31,6 +31,8 @@ MAINTAINER Nimbix, Inc.
 
 ARG CANU_VERSION
 ENV CANU_VERSION ${CANU_VERSION:-1.5}
+ARG JRE_URL
+ENV JRE_URL ${JRE_URL:-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-linux-x64.rpm}
 
 # Install Nimbix desktop so we can use GUI mode
 ADD https://github.com/nimbix/image-common/archive/master.zip /tmp/nimbix.zip
@@ -59,6 +61,6 @@ RUN sed -i -e "s/%CANU_VERSION%/${CANU_VERSION}/" /etc/NAE/AppDef.json
 
 # Do Canu install
 WORKDIR /tmp
-RUN /usr/local/scripts/canu/canu-install.sh ${CANU_VERSION} && \
+RUN /usr/local/scripts/canu/canu-install.sh ${CANU_VERSION} ${JRE_URL} && \
     echo "export PATH=\$PATH:/usr/local/canu-${CANU_VERSION}/Linux-amd64/bin" >>/etc/profile.d/canu.sh
 
