@@ -20,9 +20,24 @@ if [ -f "canu-${CANU_VERSION}.Linux-amd64.tar.xz" ]; then
     tar xvf canu-${CANU_VERSION}.Linux-amd64.tar.xz -C /usr/local
     rm -f canu-${CANU_VERSION}.Linux-amd64.tar.xz
 elif [ -f "v${CANU_VERSION}.tar.gz" ]; then
-    yum install -y make gcc-c++
+    yum install -y make gcc-c++ patch
     tar xzf v${CANU_VERSION}.tar.gz
     cd canu-${CANU_VERSION}/src
+    cat <<'EOF' | patch -p2
+diff --git a/src/pipelines/canu/Execution.pm b/src/pipelines/canu/Execution.pm
+index be1fe77..840ac4f 100644
+--- a/src/pipelines/canu/Execution.pm
++++ b/src/pipelines/canu/Execution.pm
+@@ -354,7 +354,7 @@ sub getLimitShellCode ($) {
+         $string .= "\n";
+         $string .= "max=`ulimit -Hu`\n";
+         $string .= "bef=`ulimit -Su`\n";
+-        $string .= "if [ \$bef -lt \$max ] ; then\n";
++        $string .= "if [ \"\$bef\" != \"unlimited\" ] && [ \$bef -lt \$max ] ; then\n";
+         $string .= "  ulimit -Su \$max\n";
+         $string .= "  aft=`ulimit -Su`\n";
+         $string .= "  echo \"Changed max processes per user from \$bef to \$aft (max \$max).\"\n";
+EOF
     BUILDSTACKTRACE=0 CC=gcc make -j 12
     cd ..
     mkdir -p /usr/local/canu-${CANU_VERSION}

@@ -205,7 +205,8 @@ if [ ! -z $torque_job_id ]; then
     while [ $QUEUE_LENGTH -gt 0 ]; do
         sleep 10
         QUEUE_LENGTH=$(qstat -f | grep "job_state" |grep -v "job_state = C" |wc -l)
-        LATEST_OUTPUT=$(ls $OUTPUT_DIR/canu-scripts |grep out$ | sort |tail -n 1)
+        LATEST_SCRIPT=$(ls -1 $OUTPUT_DIR/canu-scripts/canu.*.sh | sort |tail -n 1)
+        LATEST_OUTPUT=$(ls -1 $OUTPUT_DIR/canu-scripts/canu.*.out | sort |tail -n 1)
         if [ "$LATEST_OUTPUT" != "$LAST_LATEST_OUTPUT" ]; then
             # cat the contents of the last output. if there's a new output file, then the
             # contents is complete.
@@ -221,13 +222,18 @@ if [ ! -z $torque_job_id ]; then
             echo -n "*** Processing"
         fi
         echo -n "."
+        if [ "$(basename $LATEST_SCRIPT .sh)" != "$(basename $LATEST_OUTPUT .out)" ]; then
+            echo
+            echo "*** Something is wrong. Latest log file does not match the latest execution script."
+            break
+        fi
     done
     LAST_OUTPUT=$(ls $OUTPUT_DIR/canu-scripts | grep out$ | sort | tail -n 1)
     echo
     echo "*** Log file contents ($OUTPUT_DIR/canu-scripts/${LAST_OUTPUT}):"
     cat $OUTPUT_DIR/canu-scripts/${LAST_OUTPUT}
     FAILED=$(cat $OUTPUT_DIR/canu-scripts/${LAST_OUTPUT} |grep -i "canu failed")
-    if [ ! -z "$FAILED" ]; then
+    if [ ! -z "$FAILED" -o "$(basename $LATEST_SCRIPT .sh)" != "$(basename $LATEST_OUTPUT .out)" ]; then
         echo "$FAILED" 1>&2
         ERROR_CODE=1
         echo "** qnodes -a output:"
