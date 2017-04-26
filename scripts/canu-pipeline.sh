@@ -199,6 +199,7 @@ set +e
 torque_job_id="$(qstat -f |grep "Job Id"| awk 'BEGIN { FS=": " } { print $2 }')"
 
 QUEUE_LENGTH=1
+LAST_LATEST_SCRIPT=""
 LAST_LATEST_OUTPUT=""
 
 if [ ! -z $torque_job_id ]; then
@@ -222,11 +223,6 @@ if [ ! -z $torque_job_id ]; then
             echo -n "*** Processing"
         fi
         echo -n "."
-        if [ "$(basename $LATEST_SCRIPT .sh)" != "$(basename $LATEST_OUTPUT .out)" ]; then
-            echo
-            echo "*** Something is wrong. Latest log file does not match the latest execution script."
-            break
-        fi
     done
     LAST_OUTPUT=$(ls $OUTPUT_DIR/canu-scripts | grep out$ | sort | tail -n 1)
     echo
