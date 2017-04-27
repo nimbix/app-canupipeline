@@ -232,18 +232,20 @@ if [ ! -z $torque_job_id ]; then
 
     LATEST_OUTPUT=$SCRIPT_DIR/$LATEST_CANU.out
     echo
-    echo "*** Log file contents ($LATEST_OUTPUT):"
+    echo "*** Last log file contents ($LATEST_OUTPUT):"
     cat $LATEST_OUTPUT
 
-    FAILED=$(cat $LASTEST_OUTPUT | grep -i "canu failed")
+    FAILED=$(grep -i "canu failed" $LATEST_OUTPUT)
     if [ -n "$FAILED" ]; then
         echo "$FAILED" 1>&2
+        echo "** FATAL: Error while running canu job!" 1>&2
         ERROR_CODE=1
         echo "** qnodes -a output:"
         qnodes -a
         echo "** qstat -f output:"
         qstat -f
     else
+        echo "** SUCCESS: Canu job finished!" 1>&2
         ERROR_CODE=0
     fi
 else
