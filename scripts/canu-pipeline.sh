@@ -235,6 +235,8 @@ if [ ! -z $torque_job_id ]; then
     echo "*** Last log file contents ($LATEST_OUTPUT):"
     cat $LATEST_OUTPUT
 
+    echo; printf "%0.s*" {1..75}; echo
+
     FAILED=$(grep -i "canu failed" $LATEST_OUTPUT)
     if [ -n "$FAILED" ]; then
         echo "$FAILED" 1>&2
@@ -252,8 +254,6 @@ else
     echo "** FATAL: Error launching canu job!" 1>&2
     ERROR_CODE=1
 fi
-
-echo; printf "%0.s*" {1..75}; echo
 
 # Workaround for a bug with the block vaults
 #NNODES=$(cat /etc/JARVICE/nodes | wc -l)
