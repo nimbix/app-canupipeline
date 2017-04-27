@@ -178,58 +178,63 @@ echo `qstat -a`
 
 set -e
 # Canu is PBS aware and submits the job to PBS automagically using the name canu_${JOB_NAME}
+CANU_CMD="canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} \
+    ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE} \
+    genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE} \
+    gridOptionsJobName=canu ${PARAMS}"
+echo "** Resume canu job command: $CANU_CMD"
 if [ ! -z $RESUME_FROM_JOB ]; then
     echo "** Resuming Canu job: $RESUME_FROM_JOB"
-    # If resuming from a previous job...just call the command with no input file
-    canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} \
-        ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE} \
-        genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE} \
-        gridOptionsJobName=canu ${PARAMS}
 else
+    CANU_CMD+=" ${INPUT_TYPE} ${INPUT_FILE}"
+    echo "** New canu job command: $CANU_CMD"
     echo "** Starting new Canu job: $JOB_NAME"
-    # Otherwise...call the full command
-    canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION} \
-        ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE} \
-        genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE} \
-        gridOptionsJobName=canu ${PARAMS} ${INPUT_TYPE} ${INPUT_FILE}
 fi
+$CANU_CMD
 set +e
 
 # Query the Torque Job Id so we can schedule the system to shutdown once it ends
 torque_job_id="$(qstat -f |grep "Job Id"| awk 'BEGIN { FS=": " } { print $2 }')"
 
 QUEUE_LENGTH=1
-LAST_LATEST_SCRIPT=""
-LAST_LATEST_OUTPUT=""
+SCRIPT_DIR=$OUTPUT_DIR/canu-scripts
+LAST_LATEST_CANU=""
+LATEST_CANU=""
 
 if [ ! -z $torque_job_id ]; then
     while [ $QUEUE_LENGTH -gt 0 ]; do
-        sleep 10
-        QUEUE_LENGTH=$(qstat -f | grep "job_state" |grep -v "job_state = C" |wc -l)
-        LATEST_SCRIPT=$(ls -1 $OUTPUT_DIR/canu-scripts/canu.*.sh | sort |tail -n 1)
-        LATEST_OUTPUT=$(ls -1 $OUTPUT_DIR/canu-scripts/canu.*.out | sort |tail -n 1)
-        if [ "$LATEST_OUTPUT" != "$LAST_LATEST_OUTPUT" ]; then
-            # cat the contents of the last output. if there's a new output file, then the
-            # contents is complete.
-            if [ ! -z $OUTPUT_DIR/canu-scripts/${LAST_LATEST_OUTPUT} ] && \
-                   [ -f $OUTPUT_DIR/canu-scripts/${LAST_LATEST_OUTPUT} ]; then
+        LATEST_SCRIPT=$(ls -1 $SCRIPT_DIR/canu.*.sh | sort | tail -n 1)
+        LATEST_CANU=$(basename $LATEST_SCRIPT .sh)
+        if [ "$LATEST_CANU" != "$LAST_LATEST_CANU" ]; then
+            LATEST_OUTPUT=$SCRIPT_DIR/$LAST_LATEST_CANU.out
+            if [ -f $LATEST_OUTPUT ]; then
                 echo
-                echo "*** Log file contents ($OUTPUT_DIR/canu-scripts/${LAST_LATEST_OUTPUT}):"
-                cat $OUTPUT_DIR/canu-scripts/${LAST_LATEST_OUTPUT}
+                echo "*** Log file contents ($LATEST_OUTPUT):"
+                cat $LATEST_OUTPUT
             fi
-            LAST_LATEST_OUTPUT=$LATEST_OUTPUT
             echo
-            echo "*** Current log file is $OUTPUT_DIR/canu-scripts/$LATEST_OUTPUT"
+            echo "*** Current script is $LATEST_SCRIPT:"
+            cat $LATEST_SCRIPT
+            echo
             echo -n "*** Processing"
+            LAST_LATEST_CANU=$LATEST_CANU
         fi
+        sleep 10
         echo -n "."
+        QUEUE_LENGTH=$(qstat -f | grep "job_state" | grep -v "job_state = C" | wc -l)
+        LATEST_QUEUE=$SCRIPT_DIR/$LATEST_CANU.qstat
+        echo "$(date): QUEUE_LENGTH=$QUEUE_LENGTH" >>$LATEST_QUEUE
+        qstat -f >>$LATEST_QUEUE
+        printf "%0.s*" {1..75} >>$LATEST_QUEUE
     done
-    LAST_OUTPUT=$(ls $OUTPUT_DIR/canu-scripts | grep out$ | sort | tail -n 1)
+
+    LATEST_OUTPUT=$SCRIPT_DIR/$LATEST_CANU.out
     echo
-    echo "*** Log file contents ($OUTPUT_DIR/canu-scripts/${LAST_OUTPUT}):"
-    cat $OUTPUT_DIR/canu-scripts/${LAST_OUTPUT}
-    FAILED=$(cat $OUTPUT_DIR/canu-scripts/${LAST_OUTPUT} |grep -i "canu failed")
-    if [ ! -z "$FAILED" -o "$(basename $LATEST_SCRIPT .sh)" != "$(basename $LATEST_OUTPUT .out)" ]; then
+    echo "*** Log file contents ($LATEST_OUTPUT):"
+    cat $LATEST_OUTPUT
+
+    FAILED=$(cat $LASTEST_OUTPUT | grep -i "canu failed")
+    if [ -n "$FAILED" ]; then
         echo "$FAILED" 1>&2
         ERROR_CODE=1
         echo "** qnodes -a output:"
