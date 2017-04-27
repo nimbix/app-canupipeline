@@ -226,6 +226,7 @@ if [ ! -z $torque_job_id ]; then
         echo "$(date): QUEUE_LENGTH=$QUEUE_LENGTH" >>$LATEST_QUEUE
         qstat -f >>$LATEST_QUEUE
         printf "%0.s*" {1..75} >>$LATEST_QUEUE
+        echo >>$LATEST_QUEUE
     done
 
     LATEST_OUTPUT=$SCRIPT_DIR/$LATEST_CANU.out
