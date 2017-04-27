@@ -202,7 +202,7 @@ LAST_LATEST_CANU=""
 LATEST_CANU=""
 
 if [ ! -z $torque_job_id ]; then
-    while [ $QUEUE_LENGTH -gt 0 ]; do
+    while : ; do
         LATEST_SCRIPT=$(ls -1 $SCRIPT_DIR/canu.*.sh | sort | tail -n 1)
         LATEST_CANU=$(basename $LATEST_SCRIPT .sh)
         if [ "$LATEST_CANU" != "$LAST_LATEST_CANU" ]; then
@@ -227,6 +227,7 @@ if [ ! -z $torque_job_id ]; then
         qstat -f >>$LATEST_QUEUE
         printf "%0.s*" {1..75} >>$LATEST_QUEUE
         echo >>$LATEST_QUEUE
+        [ $QUEUE_LENGTH -eq 0 ] && echo && echo "** Queue is empty" && break
     done
 
     LATEST_OUTPUT=$SCRIPT_DIR/$LATEST_CANU.out
