@@ -30,7 +30,7 @@ FROM jarvice/base-centos-torque:latest
 MAINTAINER Nimbix, Inc.
 
 ARG CANU_VERSION
-ENV CANU_VERSION ${CANU_VERSION:-1.5}
+ENV CANU_VERSION ${CANU_VERSION:-1.6}
 ARG JRE_URL
 ENV JRE_URL ${JRE_URL:-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-linux-x64.rpm}
 
