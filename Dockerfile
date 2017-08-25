@@ -26,7 +26,7 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of Nimbix, Inc.
 
-FROM jarvice/base-centos-torque:6.0.2
+FROM jarvice/base-centos-torque:6.0.4
 MAINTAINER Nimbix, Inc.
 
 ARG CANU_VERSION
