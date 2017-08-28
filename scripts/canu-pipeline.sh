@@ -45,6 +45,8 @@
 # qsub or qrun in the current job environment.
 ################################################################################
 
+set -x
+
 sudo service sshd start 2>/dev/null
 echo "$0 $@"
 
