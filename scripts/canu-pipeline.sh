@@ -47,7 +47,8 @@
 
 set -x
 
-sudo service sshd start 2>/dev/null
+#sudo service sshd start 2>/dev/null
+sudo service sshd start
 echo "$0 $@"
 
 SPEC_FILE=
