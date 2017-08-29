@@ -47,8 +47,9 @@
 
 set -x
 
-sudo service sshd status >/dev/null 2>&1 || sudo service sshd start 2>/dev/null
 #sudo service sshd start
+sudo service sshd status >/dev/null 2>&1 || \
+    /usr/lib/JARVICE/tools/bin/sshd_start &
 echo "$0 $@"
 
 SPEC_FILE=
