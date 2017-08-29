@@ -47,8 +47,8 @@
 
 set -x
 
-#sudo service sshd start 2>/dev/null
-sudo service sshd start
+sudo service sshd status >/dev/null 2>&1 || sudo service sshd start 2>/dev/null
+#sudo service sshd start
 echo "$0 $@"
 
 SPEC_FILE=
@@ -115,6 +115,7 @@ sleep 5
 echo "* Starting torque..."
 #sudo /usr/local/scripts/torque/launch.sh
 /usr/local/scripts/torque/launch_all.sh
+
 
 sleep 15
 
