@@ -45,7 +45,7 @@
 # qsub or qrun in the current job environment.
 ################################################################################
 
-set -x
+#set -x
 
 toolsdir=/usr/local/JARVICE/tools
 [ -d /usr/lib/JARVICE/tools ] && toolsdir=/usr/lib/JARVICE/tools
