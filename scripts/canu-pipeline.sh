@@ -47,9 +47,10 @@
 
 set -x
 
+toolsdir=/usr/local/JARVICE/tools
+[ -d /usr/lib/JARVICE/tools ] && toolsdir=/usr/lib/JARVICE/tools
 #sudo service sshd start
-sudo service sshd status >/dev/null 2>&1 || \
-    /usr/lib/JARVICE/tools/bin/sshd_start &
+sudo service sshd status >/dev/null 2>&1 || $toolsdir/bin/sshd_start &
 echo "$0 $@"
 
 SPEC_FILE=
