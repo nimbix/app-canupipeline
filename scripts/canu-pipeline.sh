@@ -45,7 +45,12 @@
 # qsub or qrun in the current job environment.
 ################################################################################
 
-sudo service sshd start 2>/dev/null
+#set -x
+
+toolsdir=/usr/local/JARVICE/tools
+[ -d /usr/lib/JARVICE/tools ] && toolsdir=/usr/lib/JARVICE/tools
+sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
+sudo service sshd status >/dev/null 2>&1 || $toolsdir/bin/sshd_start
 echo "$0 $@"
 
 SPEC_FILE=
@@ -113,6 +118,7 @@ echo "* Starting torque..."
 #sudo /usr/local/scripts/torque/launch.sh
 /usr/local/scripts/torque/launch_all.sh
 
+
 sleep 15
 
 TIMEOUT=100
@@ -138,25 +144,29 @@ export PATH=${PATH}:${CANU_PATH}
 
 . /etc/JARVICE/jobinfo.sh
 
-if [ ! -z $RESUME_FROM_JOB ] && [ ! -d /data/$RESUME_FROM_JOB ]; then
+DATADIR=/data
+[ -f $DATADIR/please_place_all_files_in_data_directory.txt ] && \
+    DATADIR=/data/data
+
+if [ ! -z $RESUME_FROM_JOB ] && [ ! -d $DATADIR/$RESUME_FROM_JOB ]; then
     echo "** FATAL: Cannot resume job: $RESUME_FROM_JOB. Try with a different job name, or leave this blank to start over." 1>&1
 fi
 
 
-OUTPUT_DIR=/data/${JOB_NAME}
+OUTPUT_DIR=$DATADIR/${JOB_NAME}
 
 # Create output directory
 if [ ! -z $RESUME_FROM_JOB ]; then
-    ln -s /data/$RESUME_FROM_JOB $OUTPUT_DIR
+    ln -s $DATADIR/$RESUME_FROM_JOB $OUTPUT_DIR
     # Get the job prefix, from the -p prefix part of canu.01.sh, since that's how the job run is uniquely identified
-    JOB_PREFIX=$(tail -n1 /data/$RESUME_FROM_JOB/canu-scripts/canu.01.sh | awk 'BEGIN { FS="[ ]+" } { print $5 }' | awk 'BEGIN { FS="\"" } { print $2 }')
+    JOB_PREFIX=$(tail -n1 $DATADIR/$RESUME_FROM_JOB/canu-scripts/canu.01.sh | awk 'BEGIN { FS="[ ]+" } { print $5 }' | awk 'BEGIN { FS="\"" } { print $2 }')
 else
     JOB_PREFIX=$JOB_NAME
     mkdir -p $OUTPUT_DIR
 fi
 cd $OUTPUT_DIR
 
-echo "** Output will be saved to /data/${JOB_NAME}"
+echo "** Output will be saved to $DATADIR/${JOB_NAME}"
 
 # canu \
 #     -d <working-directory> \
