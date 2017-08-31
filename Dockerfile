@@ -34,17 +34,6 @@ ENV CANU_VERSION ${CANU_VERSION:-1.6}
 ARG JRE_URL
 ENV JRE_URL ${JRE_URL:-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-linux-x64.rpm}
 
-## Install Nimbix desktop so we can use GUI mode
-#ADD https://github.com/nimbix/image-common/archive/master.zip /tmp/nimbix.zip
-#WORKDIR /tmp
-
-# Nimbix desktop (does a yum clean all)
-#RUN unzip nimbix.zip && rm -f /tmp/nimbix.zip && mkdir -p /usr/local/lib/nimbix_desktop && for i in help-real.html help-tiger.html install-centos-real.sh install-centos-tiger.sh nimbix_desktop postinstall-tiger.sh url.txt xfce4-session-logout share skel.config; do cp -a /tmp/image-common-master/nimbix_desktop/$i /usr/local/lib/nimbix_desktop; done && rm -rf /tmp/image-common-master
-#RUN /usr/local/lib/nimbix_desktop/install-centos-tiger.sh && yum clean all && ln -s /usr/local/lib/nimbix_desktop /usr/lib/JARVICE/tools/nimbix_desktop
-#
-## recreate nimbix user home to get the right skeleton files
-#RUN /bin/rm -rf /home/nimbix && /sbin/mkhomedir_helper nimbix
-
 # for standalone use
 EXPOSE 5901
 EXPOSE 443
