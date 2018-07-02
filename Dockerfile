@@ -29,6 +29,10 @@
 FROM jarvice/base-centos-torque:6.0.4
 LABEL maintainer="Nimbix, Inc."
 
+# Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
+ARG SERIAL_NUMBER
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20180602.1000}
+
 ARG CANU_VERSION
 ENV CANU_VERSION ${CANU_VERSION:-1.7.1}
 ARG JRE_URL
