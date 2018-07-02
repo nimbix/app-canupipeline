@@ -32,7 +32,6 @@
 
 CANU_VERSION=$1
 # Oracle doesn't provide yum repos or sane URLs for downloading.
-#JRE_URL=http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-linux-x64.rpm
 [ -n "$2" ] && JRE_URL=$2
 
 yum install -y wget gnuplot #java-1.8.0-openjdk-headless.x86_64
