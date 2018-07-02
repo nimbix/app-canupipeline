@@ -7,8 +7,7 @@
     "Bioinformatics"
   ],
   "machines": [
-    "n3",
-    "n4"
+    "n[0-9]*"
   ],
   "vault-types": [
     "FILE",

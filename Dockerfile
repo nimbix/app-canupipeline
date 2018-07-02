@@ -27,10 +27,10 @@
 # policies, either expressed or implied, of Nimbix, Inc.
 
 FROM jarvice/base-centos-torque:6.0.4
-MAINTAINER Nimbix, Inc.
+LABEL maintainer="Nimbix, Inc."
 
 ARG CANU_VERSION
-ENV CANU_VERSION ${CANU_VERSION:-1.6}
+ENV CANU_VERSION ${CANU_VERSION:-1.7.1}
 ARG JRE_URL
 ENV JRE_URL ${JRE_URL:-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-linux-x64.rpm}
 
