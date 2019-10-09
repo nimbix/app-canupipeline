@@ -51,12 +51,12 @@ toolsdir=/usr/local/JARVICE/tools
 [ -d /usr/lib/JARVICE/tools ] && toolsdir=/usr/lib/JARVICE/tools
 sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
 sudo service sshd status >/dev/null 2>&1 || $toolsdir/bin/sshd_start
-echo "$0 $@"
+echo "$0 $*"
 
 SPEC_FILE=
 GENOME_MAGNITUDE=
 
-while [ ! -z "$1" ]; do
+while [ -n "$1" ]; do
     case "$1" in
         -ApplicationParams)
             shift
@@ -124,14 +124,14 @@ sleep 15
 TIMEOUT=100
 ELAPSED=0
 
-while [ 1 ]; do
+while true; do
     NODE_COUNT=$(qnodes -a |grep -i down | wc -l)
     if [ $NODE_COUNT -gt 0 ]; then
         sleep 10
         ELAPSED=$(($ELAPSED+10))
         if [ $ELAPSED -gt $TIMEOUT ]; then
             echo "* Failure to start torque!" 1>&2
-            echo `qnodes -a` 1>&2
+            echo $(qnodes -a) 1>&2
             exit 1
         fi
     else
@@ -181,9 +181,9 @@ echo "** Output will be saved to $DATADIR/${JOB_NAME}"
 #     [-nanopore-raw       <read-file>]
 #     [-nanopore-corrected <read-file>]
 printf "%0.s#" {1..75}; echo
-echo `qnodes -a`
+echo $(qnodes -a)
 printf "%0.s#" {1..75}; echo
-echo `qstat -a`
+echo $(qstat -a)
 
 
 set -e

@@ -1,4 +1,4 @@
-# Copyright (c) 2017, Nimbix, Inc.
+# Copyright (c) 2019, Nimbix, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,34 +26,40 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of Nimbix, Inc.
 
-FROM jarvice/base-centos-torque:6.0.4
+FROM jarvice/base-centos-torque:6.1.2-stripped
 LABEL maintainer="Nimbix, Inc."
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
-ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20180602.1000}
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191009.1000}
 
 ARG CANU_VERSION
-ENV CANU_VERSION ${CANU_VERSION:-1.7.1}
+ENV CANU_VERSION ${CANU_VERSION:-1.8}
 ARG JRE_URL
 ENV JRE_URL ${JRE_URL:-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-linux-x64.rpm}
+
+RUN curl -H 'Cache-Control: no-cache' \
+        https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
+        | bash -s -- --setup-nimbix-desktop
 
 # for standalone use
 EXPOSE 5901
 EXPOSE 443
 
 # Add scripts and whatnot
-ADD ./scripts/canu-desktop.sh /usr/local/scripts/canu/canu-desktop.sh
-ADD ./scripts/canu-install.sh /usr/local/scripts/canu/canu-install.sh
-ADD ./scripts/canu-pipeline.sh /usr/local/scripts/canu/canu-pipeline.sh
+COPY scripts/canu-desktop.sh /usr/local/scripts/canu/canu-desktop.sh
+COPY scripts/canu-install.sh /usr/local/scripts/canu/canu-install.sh
+COPY scripts/canu-pipeline.sh /usr/local/scripts/canu/canu-pipeline.sh
+
 COPY ./NAE/screenshot.png /etc/NAE/screenshot.png
-ADD ./NAE/AppDef.png /etc/NAE/AppDef.png
-ADD ./NAE/help.html /etc/NAE/help.html
-ADD ./NAE/AppDef.json /etc/NAE/AppDef.json
+COPY ./NAE/AppDef.png /etc/NAE/AppDef.png
+COPY ./NAE/help.html /etc/NAE/help.html
+COPY ./NAE/AppDef.json /etc/NAE/AppDef.json
+RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://api.jarvice.com/jarvice/validate
+
 RUN sed -i -e "s/%CANU_VERSION%/${CANU_VERSION}/" /etc/NAE/AppDef.json
 
 # Do Canu install
 WORKDIR /tmp
 RUN /usr/local/scripts/canu/canu-install.sh ${CANU_VERSION} ${JRE_URL} && \
     echo "export PATH=\$PATH:/usr/local/canu-${CANU_VERSION}/Linux-amd64/bin" >>/etc/profile.d/canu.sh
-
