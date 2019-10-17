@@ -26,7 +26,8 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of Nimbix, Inc.
 
-FROM jarvice/base-centos-torque:6.1.2-stripped
+#FROM jarvice/base-centos-torque:6.1.2-stripped
+FROM jarvice/app-hpctest:slurm18
 LABEL maintainer="Nimbix, Inc."
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
@@ -38,9 +39,9 @@ ENV CANU_VERSION ${CANU_VERSION:-1.8}
 ARG JRE_URL
 ENV JRE_URL ${JRE_URL:-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-linux-x64.rpm}
 
-RUN curl -H 'Cache-Control: no-cache' \
-        https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
-        | bash -s -- --setup-nimbix-desktop
+#RUN curl -H 'Cache-Control: no-cache' \
+#        https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
+#        | bash -s -- --setup-nimbix-desktop
 
 # for standalone use
 EXPOSE 5901

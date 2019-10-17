@@ -123,11 +123,11 @@
       "path": "/sbin/init",
       "interactive": true,
       "name": "Canu Server",
-      "description": "Launch a session with all boot services, including TORQUE and SSH.  Connection address and credentials will appear in your web browser once available.",
+      "description": "Launch a session with all boot services, including Slurm and SSH.  Connection address and credentials will appear in your web browser once available.",
       "parameters": {}
     },
     "GUI": {
-      "path": "/usr/local/scripts/canu/canu-desktop.sh",
+      "path": "/usr/local/scripts/cluster-start.sh",
       "interactive": true,
       "name": "Canu Desktop",
       "description": "Launch an interactive desktop with Canu Pipeline tools.",
