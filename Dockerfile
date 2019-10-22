@@ -27,7 +27,7 @@
 # policies, either expressed or implied, of Nimbix, Inc.
 
 #FROM jarvice/base-centos-torque:6.1.2-stripped
-FROM jarvice/app-hpctest:slurm18
+FROM jarvice/app-hpctest:18.08.8
 LABEL maintainer="Nimbix, Inc."
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
