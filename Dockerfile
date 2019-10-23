@@ -32,7 +32,7 @@ LABEL maintainer="Nimbix, Inc."
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
-ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191009.1000}
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191023.1000}
 
 ARG CANU_VERSION
 ENV CANU_VERSION ${CANU_VERSION:-1.8}
@@ -47,15 +47,15 @@ ENV JRE_URL ${JRE_URL:-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54
 EXPOSE 5901
 EXPOSE 443
 
-# Add scripts and whatnot
+# Add scripts
 COPY scripts/canu-desktop.sh /usr/local/scripts/canu/canu-desktop.sh
 COPY scripts/canu-install.sh /usr/local/scripts/canu/canu-install.sh
 COPY scripts/canu-pipeline.sh /usr/local/scripts/canu/canu-pipeline.sh
 
-COPY ./NAE/screenshot.png /etc/NAE/screenshot.png
-COPY ./NAE/AppDef.png /etc/NAE/AppDef.png
-COPY ./NAE/help.html /etc/NAE/help.html
-COPY ./NAE/AppDef.json /etc/NAE/AppDef.json
+COPY NAE/screenshot.png /etc/NAE/screenshot.png
+COPY NAE/AppDef.png /etc/NAE/AppDef.png
+COPY NAE/help.html /etc/NAE/help.html
+COPY NAE/AppDef.json /etc/NAE/AppDef.json
 RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://api.jarvice.com/jarvice/validate
 
 RUN sed -i -e "s/%CANU_VERSION%/${CANU_VERSION}/" /etc/NAE/AppDef.json
