@@ -29,5 +29,5 @@
 # policies, either expressed or implied, of Nimbix, Inc.
 
 # Start the Slurm cluster
-sudo /usr/local/scripts/cluster-start.sh "$@"
+/usr/local/scripts/cluster-start.sh "$@"
 /usr/local/bin/nimbix_desktop

@@ -34,10 +34,11 @@ CANU_VERSION=$1
 # Oracle doesn't provide yum repos or sane URLs for downloading.
 [ -n "$2" ] && JRE_URL=$2
 
-yum install -y wget gnuplot #java-1.8.0-openjdk-headless.x86_64
-wget -nv --header "Cookie: oraclelicense=accept-securebackup-cookie" ${JRE_URL}
-yum install -y $(basename ${JRE_URL})
-rm -f $(basename ${JRE_URL})
+#yum install -y wget gnuplot #java-1.8.0-openjdk-headless.x86_64
+yum install -y wget gnuplot java-1.8.0-openjdk-headless.x86_64
+#wget -nv --header "Cookie: oraclelicense=accept-securebackup-cookie" ${JRE_URL}
+#yum install -y $(basename ${JRE_URL})
+#rm -f $(basename ${JRE_URL})
 
 #wget "https://github.com/marbl/canu/releases/download/v${CANU_VERSION}/canu-${CANU_VERSION}.Linux-amd64.tar.xz" || \
 
