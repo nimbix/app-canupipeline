@@ -132,12 +132,13 @@
       "name": "Canu Desktop",
       "description": "Launch an interactive desktop with Canu Pipeline tools.",
       "parameters": {
-        "command": {
-          "name": "Command",
-          "description": "Optional command to run on startup",
-          "type": "STR",
-          "positional": true,
-          "required": false
+        "memory": {
+          "name": "memory",
+          "description": "total RAM of master node",
+          "type": "CONST",
+          "value": "%RAM%",
+          "positional": false,
+          "required": true
         }
       }
     }

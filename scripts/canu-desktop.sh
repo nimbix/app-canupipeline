@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2017, Nimbix, Inc.
+# Copyright (c) 2019, Nimbix, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,5 +29,5 @@
 # policies, either expressed or implied, of Nimbix, Inc.
 
 # Start the Slurm cluster
-sudo /usr/local/scripts/cluster-start.sh
-/usr/local/bin/nimbix_desktop $1
+sudo /usr/local/scripts/cluster-start.sh "$@"
+/usr/local/bin/nimbix_desktop
