@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Copyright (c) 2017, Nimbix, Inc.
 # All rights reserved.
@@ -28,5 +28,6 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of Nimbix, Inc.
 
-sudo /usr/local/scripts/torque/launch.sh
+# Start the Slurm cluster
+sudo /usr/local/scripts/cluster-start.sh
 /usr/local/bin/nimbix_desktop $1

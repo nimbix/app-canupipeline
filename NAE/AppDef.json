@@ -127,7 +127,7 @@
       "parameters": {}
     },
     "GUI": {
-      "path": "/usr/local/scripts/cluster-start.sh",
+      "path": "/usr/local/scripts/canu/canu-desktop.sh",
       "interactive": true,
       "name": "Canu Desktop",
       "description": "Launch an interactive desktop with Canu Pipeline tools.",
