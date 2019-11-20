@@ -28,25 +28,24 @@
 
 #FROM jarvice/base-centos-torque:6.1.2-stripped
 FROM jarvice/app-hpctest:18.08.8
-LABEL maintainer="Nimbix, Inc."
+LABEL maintainer="Nimbix, Inc."\
+      license="BSD"
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
-ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191023.1300}
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191120.1300}
 
 ARG CANU_VERSION
 ENV CANU_VERSION ${CANU_VERSION:-1.8}
 
-ARG JRE_URL
-ENV JRE_URL ${JRE_URL:-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-linux-x64.rpm}
+#ARG JRE_URL
+#ENV JRE_URL ${JRE_URL:-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-linux-x64.rpm}
 
 #RUN curl -H 'Cache-Control: no-cache' \
 #        https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
 #        | bash -s -- --setup-nimbix-desktop
 
-# for standalone use
-EXPOSE 5901
-EXPOSE 443
+RUN yum -y install wget gnuplot java-1.8.0-openjdk
 
 # Add scripts
 COPY scripts/canu-desktop.sh /usr/local/scripts/canu/canu-desktop.sh
@@ -63,5 +62,10 @@ RUN sed -i -e "s/%CANU_VERSION%/${CANU_VERSION}/" /etc/NAE/AppDef.json
 
 # Do Canu install
 WORKDIR /tmp
-RUN /usr/local/scripts/canu/canu-install.sh ${CANU_VERSION} ${JRE_URL} && \
+#RUN /usr/local/scripts/canu/canu-install.sh ${CANU_VERSION} ${JRE_URL} && \
+RUN /usr/local/scripts/canu/canu-install.sh ${CANU_VERSION} && \
     echo "export PATH=\$PATH:/usr/local/canu-${CANU_VERSION}/Linux-amd64/bin" >>/etc/profile.d/canu.sh
+
+# for standalone use
+EXPOSE 5901
+EXPOSE 443

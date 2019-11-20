@@ -19,7 +19,7 @@
       "path": "/usr/local/scripts/canu/canu-pipeline.sh",
       "interactive": false,
       "name": "Canu Pipeline",
-      "description": "Run a batch pipeline directly from your browser.",
+      "description": "Run a batch pipeline directly from your browser",
       "parameters": {
         "-ApplicationParams": {
           "name": "Key-value application parameters",
@@ -130,7 +130,7 @@
       "path": "/usr/local/scripts/canu/canu-desktop.sh",
       "interactive": true,
       "name": "Canu Desktop",
-      "description": "Launch an interactive desktop with Canu Pipeline tools.",
+      "description": "Launch an interactive desktop with Canu Pipeline tools",
       "parameters": {
         "memory": {
           "name": "memory",

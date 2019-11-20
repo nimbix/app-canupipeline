@@ -32,16 +32,16 @@
 
 CANU_VERSION=$1
 # Oracle doesn't provide yum repos or sane URLs for downloading.
-[ -n "$2" ] && JRE_URL=$2
+#[ -n "$2" ] && JRE_URL=$2
 
 #yum install -y wget gnuplot #java-1.8.0-openjdk-headless.x86_64
-yum install -y wget gnuplot java-1.8.0-openjdk-headless.x86_64
+#yum install -y wget gnuplot java-1.8.0-openjdk-headless.x86_64
+
 #wget -nv --header "Cookie: oraclelicense=accept-securebackup-cookie" ${JRE_URL}
 #yum install -y $(basename ${JRE_URL})
 #rm -f $(basename ${JRE_URL})
 
-#wget "https://github.com/marbl/canu/releases/download/v${CANU_VERSION}/canu-${CANU_VERSION}.Linux-amd64.tar.xz" || \
-
+wget -nv "https://github.com/marbl/canu/releases/download/v${CANU_VERSION}/canu-${CANU_VERSION}.Linux-amd64.tar.xz" || \
 wget -nv "https://github.com/marbl/canu/archive/v${CANU_VERSION}.tar.gz"
 
 if [ -f "canu-${CANU_VERSION}.Linux-amd64.tar.xz" ]; then
@@ -50,7 +50,7 @@ if [ -f "canu-${CANU_VERSION}.Linux-amd64.tar.xz" ]; then
 elif [ -f "v${CANU_VERSION}.tar.gz" ]; then
     yum install -y make gcc-c++ patch
     tar xzf v${CANU_VERSION}.tar.gz
-    cd canu-${CANU_VERSION}/src
+    cd canu-${CANU_VERSION}/src || exit 1
     cat <<'EOF' | patch -p2
 diff -Naur a/src/pipelines/canu/Execution.pm b/src/pipelines/canu/Execution.pm
 --- a/src/pipelines/canu/Execution.pm	2018-07-02 18:21:01.924747943 +0000
