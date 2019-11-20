@@ -47,10 +47,24 @@
 
 #set -x
 
-toolsdir=/usr/local/JARVICE/tools
-[ -d /usr/lib/JARVICE/tools ] && toolsdir=/usr/lib/JARVICE/tools
-sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
-sudo service sshd status >/dev/null 2>&1 || $toolsdir/bin/sshd_start
+TOOLSDIR="/usr/local/JARVICE/tools/bin"
+
+# start SSHd
+${TOOLSDIR}/sshd_start
+
+# Wait for slaves...max of 60 seconds
+SLAVE_CHECK_TIMEOUT=60
+${TOOLSDIR}/python_ssh_test ${SLAVE_CHECK_TIMEOUT}
+ERR=$?
+if [[ ${ERR} -gt 0 ]]; then
+  echo "ERROR: One or more slaves failed to start" 1>&2
+  exit ${ERR}
+fi
+
+#toolsdir=/usr/local/JARVICE/tools
+#[ -d /usr/lib/JARVICE/tools ] && toolsdir=/usr/lib/JARVICE/tools
+#sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
+#sudo service sshd status >/dev/null 2>&1 || $toolsdir/bin/sshd_start
 echo "$0 $*"
 
 SPEC_FILE=
@@ -112,31 +126,34 @@ while [ -n "$1" ]; do
   shift
 done
 
-sleep 5
+#sleep 5
 
-echo "* Starting torque..."
-#sudo /usr/local/scripts/torque/launch.sh
-/usr/local/scripts/torque/launch_all.sh
+#echo "* Starting torque..."
+##sudo /usr/local/scripts/torque/launch.sh
+#/usr/local/scripts/torque/launch_all.sh
 
-sleep 15
+echo "INFO: Starting Slurm cluster..."
+/usr/local/scripts/cluster-start.sh "$@"
 
-TIMEOUT=100
-ELAPSED=0
+#sleep 15
 
-while true; do
-  NODE_COUNT=$(qnodes -a | grep -i down | wc -l)
-  if [ $NODE_COUNT -gt 0 ]; then
-    sleep 10
-    ELAPSED=$(($ELAPSED + 10))
-    if [ $ELAPSED -gt $TIMEOUT ]; then
-      echo "* Failure to start torque!" 1>&2
-      echo $(qnodes -a) 1>&2
-      exit 1
-    fi
-  else
-    break
-  fi
-done
+#TIMEOUT=100
+#ELAPSED=0
+#
+#while true; do
+#  NODE_COUNT=$(qnodes -a | grep -i down | wc -l)
+#  if [ $NODE_COUNT -gt 0 ]; then
+#    sleep 10
+#    ELAPSED=$(($ELAPSED + 10))
+#    if [ $ELAPSED -gt $TIMEOUT ]; then
+#      echo "* Failure to start torque!" 1>&2
+#      echo $(qnodes -a) 1>&2
+#      exit 1
+#    fi
+#  else
+#    break
+#  fi
+#done
 
 CANU_PATH=$(ls -d /usr/local/canu-*)/Linux-amd64/bin
 export PATH=${PATH}:${CANU_PATH}
@@ -148,7 +165,7 @@ DATADIR=/data
   DATADIR=/data/data
 
 if [ -n "$RESUME_FROM_JOB" ] && [ ! -d $DATADIR/$RESUME_FROM_JOB ]; then
-  echo "** FATAL: Cannot resume job: $RESUME_FROM_JOB. Try with a different job name, or leave this blank to start over." 1>&1
+  echo "FATAL: Cannot resume job: $RESUME_FROM_JOB. Try with a different job name, or leave this blank to start over." 1>&1
 fi
 
 OUTPUT_DIR=$DATADIR/${JOB_NAME}
@@ -164,7 +181,7 @@ else
 fi
 cd $OUTPUT_DIR
 
-echo "** Output will be saved to $DATADIR/${JOB_NAME}"
+echo "INFO:  Output will be saved to $DATADIR/${JOB_NAME}"
 
 # canu \
 #     -d <working-directory> \
@@ -180,63 +197,76 @@ echo "** Output will be saved to $DATADIR/${JOB_NAME}"
 #     [-nanopore-corrected <read-file>]
 printf "%0.s#" {1..75}
 echo
-echo $(qnodes -a)
+scontrol show nodes
 printf "%0.s#" {1..75}
 echo
-echo $(qstat -a)
+squeue
 
 set -e
-# Canu is PBS aware and submits the job to PBS automagically using the name canu_${JOB_NAME}
+# Canu is Slurm aware and submits the job to Slurm automagically using the name canu_${JOB_NAME}
 CANU_CMD="canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION}
     ${RAW_ERROR_RATE} ${CORRECTED_ERROR_RATE}
     genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE}
     gridOptionsJobName=canu ${PARAMS}"
-echo "** Resume canu job command: $CANU_CMD"
+
+echo "INFO:  Resume Canu job command: $CANU_CMD"
 if [ -n "$RESUME_FROM_JOB" ]; then
-  echo "** Resuming Canu job: $RESUME_FROM_JOB"
+  echo "INFO:  Resuming Canu job: $RESUME_FROM_JOB"
 else
   CANU_CMD+=" ${INPUT_TYPE} ${INPUT_FILE}"
-  echo "** New canu job command: $CANU_CMD"
-  echo "** Starting new Canu job: $JOB_NAME"
+  echo "INFO:  New canu job command: $CANU_CMD"
+  echo "INFO:  Starting new Canu job: $JOB_NAME"
 fi
 $CANU_CMD
 set +e
 
+echo "Slurm Job Name: $SLURM_JOB_NAME"
+echo "Slurm Job ID: $SLURM_JOB_ID"
+
 # Query the Torque Job Id so we can schedule the system to shutdown once it ends
-torque_job_id="$(qstat -f | grep "Job Id" | awk 'BEGIN { FS=": " } { print $2 }')"
+#torque_job_id="$(qstat -f | grep "Job Id" | awk 'BEGIN { FS=": " } { print $2 }')"
 
 QUEUE_LENGTH=1
 SCRIPT_DIR=$OUTPUT_DIR/canu-scripts
 LAST_LATEST_CANU=""
 LATEST_CANU=""
+ERROR_CODE=0
 
-if [ ! -z $torque_job_id ]; then
-  while :; do
+#if [ ! -z $torque_job_id ]; then
+#if [[ -n $torque_job_id ]]; then
+  while true; do
     LATEST_SCRIPT=$(ls -1 $SCRIPT_DIR/canu.*.sh | sort | tail -n 1)
     LATEST_CANU=$(basename $LATEST_SCRIPT .sh)
+
     if [ "$LATEST_CANU" != "$LAST_LATEST_CANU" ]; then
       LATEST_OUTPUT=$SCRIPT_DIR/$LAST_LATEST_CANU.out
       if [ -f $LATEST_OUTPUT ]; then
         echo
-        echo "*** Log file contents ($LATEST_OUTPUT):"
+        echo "INFO:  Log file contents ($LATEST_OUTPUT):"
         cat $LATEST_OUTPUT
       fi
       echo
-      echo "*** Current script is $LATEST_SCRIPT:"
+      echo "INFO:  Current script is $LATEST_SCRIPT:"
       cat $LATEST_SCRIPT
       echo
-      echo -n "*** Processing"
+      echo -n "INFO:  Processing"
       LAST_LATEST_CANU=$LATEST_CANU
     fi
+
     sleep 10
+
     echo -n "."
     QUEUE_LENGTH=$(qstat -f | grep "job_state" | grep -v "job_state = C" | wc -l)
     LATEST_QUEUE=$SCRIPT_DIR/$LATEST_CANU.qstat
     echo "$(date): QUEUE_LENGTH=$QUEUE_LENGTH" >>$LATEST_QUEUE
-    qstat -f >>$LATEST_QUEUE
+    scontrol show partition
+
+#    qstat -f >>$LATEST_QUEUE
+    squeue >>$LATEST_QUEUE
+
     printf "%0.s*" {1..75} >>$LATEST_QUEUE
     echo >>$LATEST_QUEUE
-    [ $QUEUE_LENGTH -eq 0 ] && echo && echo "** Queue is empty" && break
+    [ $QUEUE_LENGTH -eq 0 ] && echo && echo "INFO:  Queue is empty" && break
   done
 
   LATEST_OUTPUT=$SCRIPT_DIR/$LATEST_CANU.out
@@ -253,18 +283,22 @@ if [ ! -z $torque_job_id ]; then
     echo "$FAILED" 1>&2
     echo "** FATAL: Error while running canu job!" 1>&2
     ERROR_CODE=1
+
     echo "** qnodes -a output:"
-    qnodes -a
+#    qnodes -a
+    scontrol show nodes
+
     echo "** qstat -f output:"
-    qstat -f
+#    qstat -f
+    squeue
   else
     echo "** SUCCESS: Canu job finished!" 1>&2
     ERROR_CODE=0
   fi
-else
-  echo "** FATAL: Error launching canu job!" 1>&2
-  ERROR_CODE=1
-fi
+#else
+#  echo "** FATAL: Error launching canu job!" 1>&2
+#  ERROR_CODE=1
+#fi
 
 # Workaround for a bug with the block vaults
 #NNODES=$(cat /etc/JARVICE/nodes | wc -l)
