@@ -63,6 +63,7 @@
 TOOLSDIR="/usr/local/JARVICE/tools/bin"
 
 # start SSHd
+echo "INFO: starting SSHd..."
 ${TOOLSDIR}/sshd_start
 
 # Wait for slaves...max of 60 seconds
@@ -74,7 +75,8 @@ if [[ ${ERR} -gt 0 ]]; then
   exit ${ERR}
 fi
 
-echo "$0 $*"
+echo "INFO: Canu pipeline setup: $0 $*"
+echo
 
 SPEC_FILE=
 GENOME_MAGNITUDE=
@@ -142,6 +144,7 @@ done
 # start the Slurm cluster, feed the node memory size and turn off the desktop
 echo "INFO: Starting Slurm cluster..."
 /usr/local/scripts/cluster-start.sh memory "$MEM" desktop false
+echo
 
 CANU_PATH=$(ls -d /usr/local/canu-*)/Linux-amd64/bin
 export PATH=${PATH}:${CANU_PATH}
@@ -170,14 +173,18 @@ fi
 cd $OUTPUT_DIR
 
 echo "INFO:  Output will be saved to $DATADIR/${JOB_NAME}"
-
+echo
 
 printf "%0.s#" {1..75}
 echo
+echo "INFO:  Slurm node info:"
 scontrol show nodes
 printf "%0.s#" {1..75}
 echo
+echo "INFO:  Slurm queue info:"
 squeue
+printf "%0.s#" {1..75}
+echo
 
 set -e
 # Canu is Slurm aware and submits the job to Slurm automagically using the name canu_${JOB_NAME}
@@ -194,11 +201,10 @@ else
   echo "INFO:  New canu job command: $CANU_CMD"
   echo "INFO:  Starting new Canu job: $JOB_NAME"
 fi
+
+# Launch the Canu command line job
 $CANU_CMD
 set +e
-
-echo "Slurm Job Name: $SLURM_JOB_NAME"
-echo "Slurm Job ID: $SLURM_JOB_ID"
 
 # Query the Torque Job Id so we can schedule the system to shutdown once it ends
 #torque_job_id="$(qstat -f | grep "Job Id" | awk 'BEGIN { FS=": " } { print $2 }')"
