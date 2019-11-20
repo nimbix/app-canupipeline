@@ -116,6 +116,14 @@
           "filter": "*.spec",
           "required": false,
           "description": "Project input file (*.spec)"
+        },
+        "-memory": {
+          "name": "memory",
+          "description": "total RAM of master node",
+          "type": "CONST",
+          "value": "%RAM%",
+          "positional": false,
+          "required": true
         }
       }
     },

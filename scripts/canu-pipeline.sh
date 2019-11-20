@@ -28,7 +28,6 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of Nimbix, Inc.
 #
-# Author: Stephen Fox (stephen.fox@nimbix.net)
 
 ################################################################################
 # canu-pipeline.sh
@@ -37,12 +36,26 @@
 #  1. Install CANU from binary archives
 #     (https://github.com/marbl/canu/releases, along with JAVA 1.8);
 #     * https://github.com/marbl/canu/releases/download/v1.2/canu-1.2.Linux-amd64.tar.bz2
-#     * http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jre-8u91-linux-x64.rpm
-#  2. Call /usr/local/scripts/torque/launch_all.sh to start the torque server
+#
+#  2. Call /usr/local/scripts/cluster-start.sh to start the Slurm server
 #     and clients
 #
-# This script should be called if you want to submit a job to torque via
-# qsub or qrun in the current job environment.
+#   Canu command line format:
+#   canu \
+#     -d <working-directory> \
+#     -p <file-prefix> \
+#     [-s specifications] \
+#     [-correct | -trim | -assemble] \
+#     errorRate=<fraction-error> \
+#     genomeSize=<genome-size>\
+#     [parameters] \
+#     [-pacbio-raw         <read-file>]
+#     [-pacbio-corrected   <read-file>]
+#     [-nanopore-raw       <read-file>]
+#     [-nanopore-corrected <read-file>]
+#
+# This script should be called if you want to submit a job to Slurm via
+# sbatch in the current job environment
 ################################################################################
 
 #set -x
@@ -61,10 +74,6 @@ if [[ ${ERR} -gt 0 ]]; then
   exit ${ERR}
 fi
 
-#toolsdir=/usr/local/JARVICE/tools
-#[ -d /usr/lib/JARVICE/tools ] && toolsdir=/usr/lib/JARVICE/tools
-#sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
-#sudo service sshd status >/dev/null 2>&1 || $toolsdir/bin/sshd_start
 echo "$0 $*"
 
 SPEC_FILE=
@@ -120,40 +129,19 @@ while [ -n "$1" ]; do
     shift
     SPEC_FILE="-s $1"
     ;;
+  -memory)
+    shift
+    MEM="$1"
+    ;;
   *) ;;
 
   esac
   shift
 done
 
-#sleep 5
-
-#echo "* Starting torque..."
-##sudo /usr/local/scripts/torque/launch.sh
-#/usr/local/scripts/torque/launch_all.sh
-
+# start the Slurm cluster, feed the node memory size and turn off the desktop
 echo "INFO: Starting Slurm cluster..."
-/usr/local/scripts/cluster-start.sh "$@"
-
-#sleep 15
-
-#TIMEOUT=100
-#ELAPSED=0
-#
-#while true; do
-#  NODE_COUNT=$(qnodes -a | grep -i down | wc -l)
-#  if [ $NODE_COUNT -gt 0 ]; then
-#    sleep 10
-#    ELAPSED=$(($ELAPSED + 10))
-#    if [ $ELAPSED -gt $TIMEOUT ]; then
-#      echo "* Failure to start torque!" 1>&2
-#      echo $(qnodes -a) 1>&2
-#      exit 1
-#    fi
-#  else
-#    break
-#  fi
-#done
+/usr/local/scripts/cluster-start.sh memory "$MEM" desktop false
 
 CANU_PATH=$(ls -d /usr/local/canu-*)/Linux-amd64/bin
 export PATH=${PATH}:${CANU_PATH}
@@ -183,18 +171,7 @@ cd $OUTPUT_DIR
 
 echo "INFO:  Output will be saved to $DATADIR/${JOB_NAME}"
 
-# canu \
-#     -d <working-directory> \
-#     -p <file-prefix> \
-#     [-s specifications] \
-#     [-correct | -trim | -assemble] \
-#     errorRate=<fraction-error> \
-#     genomeSize=<genome-size>\
-#     [parameters] \
-#     [-pacbio-raw         <read-file>]
-#     [-pacbio-corrected   <read-file>]
-#     [-nanopore-raw       <read-file>]
-#     [-nanopore-corrected <read-file>]
+
 printf "%0.s#" {1..75}
 echo
 scontrol show nodes
