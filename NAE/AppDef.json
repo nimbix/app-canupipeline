@@ -7,7 +7,8 @@
     "Bioinformatics"
   ],
   "machines": [
-    "n[0-9]*"
+    "n[2-9]*",
+    "n[1-9][0-9]*"
   ],
   "vault-types": [
     "FILE",
@@ -23,7 +24,7 @@
       "parameters": {
         "-ApplicationParams": {
           "name": "Key-value application parameters",
-          "description": "Key-value parameter pairs.",
+          "description": "Key-value parameter pairs",
           "type": "STR",
           "value": "",
           "required": false
@@ -131,7 +132,7 @@
       "path": "/sbin/init",
       "interactive": true,
       "name": "Canu Server",
-      "description": "Launch a session with all boot services, including Slurm and SSH.  Connection address and credentials will appear in your web browser once available.",
+      "description": "Launch a session with all boot services, including SSH.  Connection address and credentials will appear in your web browser once available.",
       "parameters": {}
     },
     "GUI": {
@@ -142,7 +143,7 @@
       "parameters": {
         "memory": {
           "name": "memory",
-          "description": "total RAM of master node",
+          "description": "Total RAM of master node",
           "type": "CONST",
           "value": "%RAM%",
           "positional": false,

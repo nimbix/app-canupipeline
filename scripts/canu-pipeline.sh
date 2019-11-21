@@ -142,7 +142,7 @@ while [ -n "$1" ]; do
 done
 
 # start the Slurm cluster, feed the node memory size and turn off the desktop
-echo "INFO: Starting Slurm cluster..."
+echo "INFO:  Starting Slurm cluster..."
 /usr/local/scripts/cluster-start.sh memory "$MEM" desktop false
 echo
 
@@ -156,7 +156,7 @@ DATADIR=/data
   DATADIR=/data/data
 
 if [ -n "$RESUME_FROM_JOB" ] && [ ! -d $DATADIR/$RESUME_FROM_JOB ]; then
-  echo "FATAL: Cannot resume job: $RESUME_FROM_JOB. Try with a different job name, or leave this blank to start over." 1>&1
+  echo "FATAL: Cannot resume job: $RESUME_FROM_JOB. Try with a different job name, or leave this blank to start over" 1>&1
 fi
 
 OUTPUT_DIR=$DATADIR/${JOB_NAME}
@@ -170,9 +170,10 @@ else
   JOB_PREFIX=$JOB_NAME
   mkdir -p $OUTPUT_DIR
 fi
+
 cd $OUTPUT_DIR
 
-echo "INFO:  Output will be saved to $DATADIR/${JOB_NAME}"
+echo "INFO:  Output will be saved to $OUTPUT_DIR"
 echo
 
 printf "%0.s#" {1..75}
@@ -193,12 +194,12 @@ CANU_CMD="canu -d ${OUTPUT_DIR} -p ${JOB_PREFIX} ${SPEC_FILE} ${ACTION}
     genomeSize=${GENOME_SIZE}${GENOME_MAGNITUDE}
     gridOptionsJobName=canu ${PARAMS}"
 
-echo "INFO:  Resume Canu job command: $CANU_CMD"
 if [ -n "$RESUME_FROM_JOB" ]; then
+  echo "INFO:  Resume Canu job command: $CANU_CMD"
   echo "INFO:  Resuming Canu job: $RESUME_FROM_JOB"
 else
   CANU_CMD+=" ${INPUT_TYPE} ${INPUT_FILE}"
-  echo "INFO:  New canu job command: $CANU_CMD"
+  echo "INFO:  New Canu job command: $CANU_CMD"
   echo "INFO:  Starting new Canu job: $JOB_NAME"
 fi
 
@@ -209,53 +210,57 @@ set +e
 # Query the Torque Job Id so we can schedule the system to shutdown once it ends
 #torque_job_id="$(qstat -f | grep "Job Id" | awk 'BEGIN { FS=": " } { print $2 }')"
 
-QUEUE_LENGTH=1
+#QUEUE_LENGTH=1
 SCRIPT_DIR=$OUTPUT_DIR/canu-scripts
-LAST_LATEST_CANU=""
+#LAST_LATEST_CANU=""
 LATEST_CANU=""
 ERROR_CODE=0
 
 #if [ ! -z $torque_job_id ]; then
 #if [[ -n $torque_job_id ]]; then
-  while true; do
-    LATEST_SCRIPT=$(ls -1 $SCRIPT_DIR/canu.*.sh | sort | tail -n 1)
-    LATEST_CANU=$(basename $LATEST_SCRIPT .sh)
+#  while true; do
+#    LATEST_SCRIPT=$(ls -1 $SCRIPT_DIR/canu.*.sh | sort | tail -n 1)
+#    LATEST_CANU=$(basename $LATEST_SCRIPT .sh)
+#
+#    if [ "$LATEST_CANU" != "$LAST_LATEST_CANU" ]; then
+#      LATEST_OUTPUT=$SCRIPT_DIR/$LAST_LATEST_CANU.out
+#      if [ -f $LATEST_OUTPUT ]; then
+#        echo
+#        echo "INFO:  Log file contents ($LATEST_OUTPUT):"
+#        cat $LATEST_OUTPUT
+#      fi
+#      echo
+#      echo "INFO:  Current script is $LATEST_SCRIPT:"
+#      cat $LATEST_SCRIPT
+#      echo
+#      echo -n "INFO:  Processing"
+#      LAST_LATEST_CANU=$LATEST_CANU
+#    fi
+#
+#    sleep 10
+#
+#    echo -n "."
+#    QUEUE_LENGTH=$(qstat -f | grep "job_state" | grep -v "job_state = C" | wc -l)
+#    LATEST_QUEUE=$SCRIPT_DIR/$LATEST_CANU.qstat
+#    echo "$(date): QUEUE_LENGTH=$QUEUE_LENGTH" >>$LATEST_QUEUE
+#    scontrol show partition
+#
+##    qstat -f >>$LATEST_QUEUE
+#    squeue >>$LATEST_QUEUE
+#
+#    printf "%0.s*" {1..75} >>$LATEST_QUEUE
+#    echo >>$LATEST_QUEUE
+#    [ $QUEUE_LENGTH -eq 0 ] && echo && echo "INFO:  Queue is empty" && break
+#  done
 
-    if [ "$LATEST_CANU" != "$LAST_LATEST_CANU" ]; then
-      LATEST_OUTPUT=$SCRIPT_DIR/$LAST_LATEST_CANU.out
-      if [ -f $LATEST_OUTPUT ]; then
-        echo
-        echo "INFO:  Log file contents ($LATEST_OUTPUT):"
-        cat $LATEST_OUTPUT
-      fi
-      echo
-      echo "INFO:  Current script is $LATEST_SCRIPT:"
-      cat $LATEST_SCRIPT
-      echo
-      echo -n "INFO:  Processing"
-      LAST_LATEST_CANU=$LATEST_CANU
-    fi
-
-    sleep 10
-
-    echo -n "."
-    QUEUE_LENGTH=$(qstat -f | grep "job_state" | grep -v "job_state = C" | wc -l)
-    LATEST_QUEUE=$SCRIPT_DIR/$LATEST_CANU.qstat
-    echo "$(date): QUEUE_LENGTH=$QUEUE_LENGTH" >>$LATEST_QUEUE
-    scontrol show partition
-
-#    qstat -f >>$LATEST_QUEUE
-    squeue >>$LATEST_QUEUE
-
-    printf "%0.s*" {1..75} >>$LATEST_QUEUE
-    echo >>$LATEST_QUEUE
-    [ $QUEUE_LENGTH -eq 0 ] && echo && echo "INFO:  Queue is empty" && break
-  done
+  echo
+  printf "%0.s*" {1..75}
+  echo
 
   LATEST_OUTPUT=$SCRIPT_DIR/$LATEST_CANU.out
   echo
-  echo "*** Last log file contents ($LATEST_OUTPUT):"
-  cat $LATEST_OUTPUT
+  echo "INFO:  Last log file contents ($LATEST_OUTPUT):"
+#  cat $LATEST_OUTPUT
 
   echo
   printf "%0.s*" {1..75}
@@ -264,18 +269,16 @@ ERROR_CODE=0
   FAILED=$(grep -i "canu failed" $LATEST_OUTPUT)
   if [ -n "$FAILED" ]; then
     echo "$FAILED" 1>&2
-    echo "** FATAL: Error while running canu job!" 1>&2
+    echo "FATAL:  Error while running Canu job!" 1>&2
     ERROR_CODE=1
 
-    echo "** qnodes -a output:"
-#    qnodes -a
+    echo "INFO:  scontrol show nodes output:"
     scontrol show nodes
 
-    echo "** qstat -f output:"
-#    qstat -f
+    echo "INFO:  squeue output:"
     squeue
   else
-    echo "** SUCCESS: Canu job finished!" 1>&2
+    echo "SUCCESS: Canu job finished!" 1>&2
     ERROR_CODE=0
   fi
 #else
@@ -286,10 +289,5 @@ ERROR_CODE=0
 # Workaround for a bug with the block vaults
 #NNODES=$(cat /etc/JARVICE/nodes | wc -l)
 #let NSLAVES=$NNODES-1
-#
-#for i in `cat /etc/JARVICE/nodes |tail -n $NSLAVES`; do
-#    echo "* Shutting down $i"
-#    ssh $i sudo halt
-#done
 
 exit $ERROR_CODE
