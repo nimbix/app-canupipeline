@@ -207,87 +207,78 @@ fi
 $CANU_CMD
 set +e
 
-# Query the Torque Job Id so we can schedule the system to shutdown once it ends
-#torque_job_id="$(qstat -f | grep "Job Id" | awk 'BEGIN { FS=": " } { print $2 }')"
-
-#QUEUE_LENGTH=1
+QUEUE_LENGTH=1
 SCRIPT_DIR=$OUTPUT_DIR/canu-scripts
-#LAST_LATEST_CANU=""
+LAST_LATEST_CANU=""
 LATEST_CANU=""
 ERROR_CODE=0
 
-#if [ ! -z $torque_job_id ]; then
-#if [[ -n $torque_job_id ]]; then
-#  while true; do
-#    LATEST_SCRIPT=$(ls -1 $SCRIPT_DIR/canu.*.sh | sort | tail -n 1)
-#    LATEST_CANU=$(basename $LATEST_SCRIPT .sh)
-#
-#    if [ "$LATEST_CANU" != "$LAST_LATEST_CANU" ]; then
-#      LATEST_OUTPUT=$SCRIPT_DIR/$LAST_LATEST_CANU.out
-#      if [ -f $LATEST_OUTPUT ]; then
-#        echo
-#        echo "INFO:  Log file contents ($LATEST_OUTPUT):"
-#        cat $LATEST_OUTPUT
-#      fi
-#      echo
-#      echo "INFO:  Current script is $LATEST_SCRIPT:"
-#      cat $LATEST_SCRIPT
-#      echo
-#      echo -n "INFO:  Processing"
-#      LAST_LATEST_CANU=$LATEST_CANU
-#    fi
-#
-#    sleep 10
-#
-#    echo -n "."
-#    QUEUE_LENGTH=$(qstat -f | grep "job_state" | grep -v "job_state = C" | wc -l)
-#    LATEST_QUEUE=$SCRIPT_DIR/$LATEST_CANU.qstat
-#    echo "$(date): QUEUE_LENGTH=$QUEUE_LENGTH" >>$LATEST_QUEUE
-#    scontrol show partition
-#
-##    qstat -f >>$LATEST_QUEUE
-#    squeue >>$LATEST_QUEUE
-#
-#    printf "%0.s*" {1..75} >>$LATEST_QUEUE
-#    echo >>$LATEST_QUEUE
-#    [ $QUEUE_LENGTH -eq 0 ] && echo && echo "INFO:  Queue is empty" && break
-#  done
+# Slurm has multiple Job IDs during a Canu run, not a single one so monitor the
+#  scripts that Canu generates for job portions
+sleep 5
+while true; do
+  LATEST_SCRIPT=$(ls -1 $SCRIPT_DIR/canu.*.sh | sort | tail -n 1)
+  LATEST_CANU=$(basename $LATEST_SCRIPT .sh)
 
-  echo
-  printf "%0.s*" {1..75}
-  echo
-
-  LATEST_OUTPUT=$SCRIPT_DIR/$LATEST_CANU.out
-  echo
-  echo "INFO:  Last log file contents ($LATEST_OUTPUT):"
-#  cat $LATEST_OUTPUT
-
-  echo
-  printf "%0.s*" {1..75}
-  echo
-
-  FAILED=$(grep -i "canu failed" $LATEST_OUTPUT)
-  if [ -n "$FAILED" ]; then
-    echo "$FAILED" 1>&2
-    echo "FATAL:  Error while running Canu job!" 1>&2
-    ERROR_CODE=1
-
-    echo "INFO:  scontrol show nodes output:"
-    scontrol show nodes
-
-    echo "INFO:  squeue output:"
-    squeue
-  else
-    echo "SUCCESS: Canu job finished!" 1>&2
-    ERROR_CODE=0
+  if [ "$LATEST_CANU" != "$LAST_LATEST_CANU" ]; then
+    LATEST_OUTPUT=$SCRIPT_DIR/$LAST_LATEST_CANU.out
+    if [ -f $LATEST_OUTPUT ]; then
+      echo
+      echo "INFO:  Latest log file contents ($LATEST_OUTPUT):"
+      cat $LATEST_OUTPUT
+    fi
+    echo
+    echo "INFO:  Current script is $LATEST_SCRIPT:"
+    cat $LATEST_SCRIPT
+    echo
+    echo -n "INFO:  Processing"
+    LAST_LATEST_CANU=$LATEST_CANU
   fi
-#else
-#  echo "** FATAL: Error launching canu job!" 1>&2
-#  ERROR_CODE=1
-#fi
 
-# Workaround for a bug with the block vaults
-#NNODES=$(cat /etc/JARVICE/nodes | wc -l)
-#let NSLAVES=$NNODES-1
+  sleep 10
+
+  echo -n "."
+
+  QUEUE_LENGTH=$(qstat -f | grep "job_state" | grep -v "job_state = C" | wc -l)
+  LATEST_QUEUE=$SCRIPT_DIR/$LATEST_CANU.qstat
+  echo "$(date): QUEUE_LENGTH=$QUEUE_LENGTH" >>$LATEST_QUEUE
+  scontrol show partition
+
+  #    qstat -f >>$LATEST_QUEUE
+  squeue >>$LATEST_QUEUE
+
+  printf "%0.s*" {1..75} >>$LATEST_QUEUE
+  echo >>$LATEST_QUEUE
+  [ $QUEUE_LENGTH -eq 0 ] && echo && echo "INFO:  Queue is empty" && break
+done
+
+echo
+printf "%0.s*" {1..75}
+echo
+
+LATEST_OUTPUT=$SCRIPT_DIR/$LATEST_CANU.out
+echo
+echo "INFO:  Last log file contents ($LATEST_OUTPUT):"
+cat $LATEST_OUTPUT
+
+echo
+printf "%0.s*" {1..75}
+echo
+
+FAILED=$(grep -i "canu failed" $LATEST_OUTPUT)
+if [ -n "$FAILED" ]; then
+  echo "$FAILED" 1>&2
+  echo "FATAL:  Error while running Canu job!" 1>&2
+  ERROR_CODE=1
+
+  echo "INFO:  scontrol show nodes output:"
+  scontrol show nodes
+
+  echo "INFO:  squeue output:"
+  squeue
+else
+  echo "SUCCESS: Canu job finished!" 1>&2
+  ERROR_CODE=0
+fi
 
 exit $ERROR_CODE
