@@ -26,7 +26,7 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of Nimbix, Inc.
 
-FROM jarvice/app-hpctest:18.08.8
+FROM jarvice/app-hpctest:slurm-18.0.8
 LABEL maintainer="Nimbix, Inc."\
       license="BSD"
 
