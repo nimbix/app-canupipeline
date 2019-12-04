@@ -131,7 +131,7 @@
     "Server": {
       "path": "/sbin/init",
       "interactive": true,
-      "name": "Canu Server",
+      "name": "Server",
       "description": "Launch a session with all boot services, including SSH.  Connection address and credentials will appear in your web browser once available.",
       "parameters": {}
     },

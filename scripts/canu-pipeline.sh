@@ -143,7 +143,7 @@ done
 
 # start the Slurm cluster, feed the node memory size and turn off the desktop
 echo "INFO:  Starting Slurm cluster..."
-/usr/local/scripts/cluster-start.sh memory "$MEM" desktop false
+/usr/local/scripts/cluster-start.sh memory "$MEM"
 echo
 
 CANU_PATH=$(ls -d /usr/local/canu-*)/Linux-amd64/bin
